@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import authenticate
+from .models import Player
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
@@ -37,3 +38,28 @@ class EmailLoginSerializer(serializers.Serializer):
             raise serializers.ValidationError("Email ou senha inválidos.")
         data['user'] = user
         return data
+    
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email']
+
+
+class PlayerSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(write_only=True)  
+    user = UserSerializer(read_only=True)  # exibe o usuário associado
+
+    class Meta:
+        model = Player
+        fields = ['id', 'score', 'position', 'username','user']
+
+    def create(self, validated_data):
+        username = validated_data.pop('username')
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            raise serializers.ValidationError("Usuário não encontrado.")
+        player = Player.objects.create(user=user, **validated_data)
+        return player
+    
