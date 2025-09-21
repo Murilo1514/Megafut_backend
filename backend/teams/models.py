@@ -1,5 +1,5 @@
 from django.db import models
-from backend.accounts.models import Player
+# from accounts.models import Player
 
 # Create your models here.
 
@@ -16,8 +16,9 @@ class Team(models.Model):
 
 
 class TeamMember(models.Model):
+
     team = models.ForeignKey(Team, related_name='members', on_delete=models.CASCADE)
-    player_id = models.ForeignKey(Player, on_delete=models.CASCADE)  # Assuming user IDs are integers
+    player_id = models.ForeignKey('accounts.Player', on_delete=models.CASCADE)  # Assuming user IDs are integers
     team_position = models.CharField(max_length=50, blank=True, null=True)  # e.g., 'admin', 'member'
 
     joined_at = models.DateTimeField(auto_now_add=True)

@@ -1,23 +1,7 @@
 from rest_framework import serializers
 from .models import Team, TeamMember
-
-# class PlayerSerializer(serializers.ModelSerializer):
-#     username = serializers.CharField(write_only=True)  
-#     user = UserSerializer(read_only=True)  # exibe o usuário associado
-
-#     class Meta:
-#         model = Player
-#         fields = ['id', 'score', 'position', 'username','user']
-
-#     def create(self, validated_data):
-#         username = validated_data.pop('username')
-#         try:
-#             user = User.objects.get(username=username)
-#         except User.DoesNotExist:
-#             raise serializers.ValidationError("Usuário não encontrado.")
-#         player = Player.objects.create(user=user, **validated_data)
-#         return player
-    
+from accounts.models import Player
+from accounts.serializers import PlayerSerializer
 
 class TeamSerializer(serializers.ModelSerializer):
     class Meta:
@@ -29,10 +13,24 @@ class TeamSerializer(serializers.ModelSerializer):
         return team
 
 class TeamMemberSerializer(serializers.ModelSerializer):
+    # TODO: Make create method to only accept ids instead of nested objects
+    
+    username = serializers.CharField(write_only=True)
+    player = PlayerSerializer(read_only=True, source='player_id')
+    
     class Meta:
         model = TeamMember
-        fields = ['id', 'team', 'player_id', 'team_position', 'joined_at']
+        fields = ['id', 'team', 'player', 'team_position', 'joined_at']
 
     def create(self, validated_data):
+
+        username = validated_data.pop('username', None)
+        if username:
+            try:
+                player = Player.objects.get(username=username)
+            except Player.DoesNotExist:
+                raise serializers.ValidationError("Usuário não encontrado.")
+            validated_data['player_id'] = player.id
+
         team_member = TeamMember.objects.create(**validated_data)
         return team_member
