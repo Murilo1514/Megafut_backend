@@ -2,6 +2,9 @@
     cd backend
     python manage.py runserver
 
+# How to start app
+    python manage.py startapp <app_name>
+
 # How to see the data
     sqlite3 db.sqlite3
     .tables;          -- list the tables
