@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Team
+from .models import Team, TeamMember
 
 # class PlayerSerializer(serializers.ModelSerializer):
 #     username = serializers.CharField(write_only=True)  
@@ -27,4 +27,12 @@ class TeamSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         team = Team.objects.create(**validated_data)
         return team
-    
+
+class TeamMemberSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TeamMember
+        fields = ['id', 'team', 'player_id', 'team_position', 'joined_at']
+
+    def create(self, validated_data):
+        team_member = TeamMember.objects.create(**validated_data)
+        return team_member
