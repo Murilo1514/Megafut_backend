@@ -9,11 +9,14 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.permissions import IsAuthenticated, AllowAny
+
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
     
 class EmailLoginView(APIView):
+    permission_classes = [AllowAny]
     serializer_class = EmailLoginSerializer
 
     def post(self, request):
